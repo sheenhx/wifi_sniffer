@@ -90,7 +90,7 @@ void SendMessage(void *pvParameters){
 		{
 			for(count=0;count<lRetVal;count++){
 				UART_PRINT("%02x", acBuffer[count]);
-				GPIO_IF_LedToggle(MCU_RED_LED_GPIO);
+				GPIO_IF_LedToggle(MCU_GREEN_LED_GPIO); // indicating the MCU activities
 			}
 
 		}
