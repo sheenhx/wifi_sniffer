@@ -14,7 +14,7 @@
 #include "rom_map.h"
 
 bool channelChanged = false;
-volatile int iChannel = 12;
+volatile int iChannel = 11;
 char acBuffer[1500];
 int16_t iSoc;
 OsiTaskHandle sendMessageHandle;
