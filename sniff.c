@@ -12,6 +12,8 @@
 #include "common.h"
 #include <stdint.h>
 #include "rom_map.h"
+#include "uart_if.h"
+
 
 bool channelChanged = false;
 volatile int iChannel = 11;
@@ -101,7 +103,7 @@ void SendMessage(void *pvParameters){
 
 	if(lRetVal < 0)
 	{
-//		ERR_PRINT(lRetVal);
+		ERR_PRINT(lRetVal);
 		LOOP_FOREVER();
 	}
 	UART_PRINT("\nSocket closed");
