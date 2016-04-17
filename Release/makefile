@@ -140,7 +140,7 @@ BIN_OUTPUTS__QUOTED += \
 all: wlan_station.out
 
 dependents:
-	-cd C:/Users/sheen/workspace_v6_1/ti_rtos_config/Default && $(MAKE) clean all
+	-cd C:/Users/sheen/workspace_v6_1/ti_rtos_config/Default && $(MAKE) all
 
 # Tool invocations
 wlan_station.out: $(OBJS) $(CMD_SRCS) $(GEN_CMDS) C:/Users/sheen/workspace_v6_1/ti_rtos_config/Default/configPkg/linker.cmd

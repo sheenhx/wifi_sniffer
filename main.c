@@ -619,42 +619,36 @@ DisplayBanner(char * AppName)
 }
 
 
-void Uart1IntHandler(void)
+
+
+
+void Uart0IntHandler(void)
 {
     unsigned long intStatus;
-    int j;
-    intStatus = MAP_UARTIntStatus(UARTA1_BASE, 1);
-    MAP_UARTIntClear(UARTA1_BASE, intStatus);
+    char    pcCfgName[128];
 
-    if((intStatus & UART_INT_RX) && MAP_UARTCharsAvail(UARTA1_BASE))
+    intStatus = MAP_UARTIntStatus(UARTA0_BASE, 1);
+    MAP_UARTIntClear(UARTA0_BASE, intStatus);
+
+    if((intStatus & UART_INT_RX) && MAP_UARTCharsAvail(UARTA0_BASE))
     {
-	 uartRxLength++;
-	 uartRxBuff[uartRxLength] = (unsigned char)MAP_UARTCharGetNonBlocking(UARTA1_BASE);
+    	UART_PRINT("\n\r");
+    	UART_PRINT("Configuration received\n\r");
+    	GetCfg(pcCfgName,128);
     }
-//    else if(intStatus & UART_INT_RT)
-//    {
-//        uartRxBuff[0] = uartRxLength;
-//	 uartRxLength = 0;
-//    }
-    if(uartRxBuff[uartRxLength] == 'a'){
-    		for(j = 0 ; j < uartRxLength ; j++){
-    			MAP_UARTCharPut(UARTA1_BASE,uartRxBuff[j]);
-    		}
-    		ChangeChannel(11);
-    		uartRxLength = 0;
-    }else if(uartRxBuff[uartRxLength] == 'b'){
-		for(j = 0 ; j < uartRxLength ; j++){
-			MAP_UARTCharPut(UARTA1_BASE,uartRxBuff[j]);
-		}
-		ChangeChannel(12);
-		uartRxLength = 0;
-    }else if(uartRxBuff[uartRxLength] == 'c'){
-		for(j = 0 ; j < uartRxLength ; j++){
-			MAP_UARTCharPut(UARTA1_BASE,uartRxBuff[j]);
-		}
-		ChangeChannel(13);
-		uartRxLength = 0;
+
+    if (strcmp(pcCfgName,"START") == 0 )
+    {
+    	ToggleCmd();
+    }else if (strcmp(pcCfgName,"CFG") == 0 )
+    {
+    	//enter the conditions for different configurations
+    	UART_PRINT("\n\r");
+    	    	UART_PRINT("Configuration starts!\n\r");
     }
+
+
+
 }
 
 //*****************************************************************************
@@ -717,15 +711,8 @@ void main()
 #endif  //NOTERM
 
 
-    uartRxBuff[0] = 0;
-    uartRxLength = 0;
-    MAP_UARTConfigSetExpClk(UARTA1_BASE,MAP_PRCMPeripheralClockGet(PRCM_UARTA1),
-               UART_BAUD_RATE, (UART_CONFIG_WLEN_8 | UART_CONFIG_STOP_ONE |
-               UART_CONFIG_PAR_NONE));
-    MAP_UARTFlowControlSet(UARTA1_BASE, UART_FLOWCONTROL_NONE);
-    MAP_UARTFIFODisable(UARTA1_BASE);
-    MAP_UARTIntRegister(UARTA1_BASE, Uart1IntHandler);
-    MAP_UARTIntEnable(UARTA1_BASE, UART_INT_RX);
+    MAP_UARTIntRegister(UARTA0_BASE, Uart0IntHandler);
+    MAP_UARTIntEnable(UARTA0_BASE, UART_INT_RX);
 
     //
     // Display Application Banner

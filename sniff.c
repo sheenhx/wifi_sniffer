@@ -3,6 +3,7 @@
  *
  *  Created on: 21-Jan-2016
  *      Author: lakshbhatia
+ *      Author: Sheen Xin HU
  */
 
 #include "sniff.h"
@@ -15,7 +16,9 @@
 #include "uart_if.h"
 
 
+
 bool channelChanged = false;
+bool cmd = false;
 volatile int iChannel = 11;
 char acBuffer[1500];
 int16_t iSoc;
@@ -74,28 +77,43 @@ void SendMessage(void *pvParameters){
 
 	int count = 0;
 	//UART_PRINT("\nSending Message\n");
-
+	int seq = 0;
 	long lRetVal = -1;
 
-	while(!channelChanged)
+	unsigned char macAddressVal[SL_MAC_ADDR_LEN];
+	unsigned char macAddressLen = SL_MAC_ADDR_LEN;
+
+	sl_NetCfgGet(SL_MAC_ADDRESS_GET,NULL,&macAddressLen,(unsigned char *)macAddressVal);
+
+
+    while(!cmd)
 	{
 
-		UART_PRINT("\n\rCollecting packets...\n");
-		UART_PRINT("%d iSOC for RECV\n",iSoc);
+		UART_PRINT("\n\r[{\"ID\":\"%02x%02x\",",macAddressVal[4],macAddressVal[5]);
+		UART_PRINT("\"iSOC\":\"%d\",",iSoc);
 		lRetVal = sl_Recv(iSoc,acBuffer,1470,0);
 
 		if(lRetVal < 0)
 		{
-			UART_PRINT("Receive error\n");
+			UART_PRINT("\"Status\":\"ERROR\",");
+			//seq = 0;  in case of out of memory
 		}
 		else
 		{
+			UART_PRINT("\"Status\":\"OK\",\"Data\":\"");
 			for(count=0;count<lRetVal;count++){
 				UART_PRINT("%02x", acBuffer[count]);
-				GPIO_IF_LedToggle(MCU_GREEN_LED_GPIO); // indicating the MCU activities
+
 			}
 
+			seq++;
+			UART_PRINT("\",");
+			GPIO_IF_LedToggle(MCU_GREEN_LED_GPIO); // indicating the MCU activities
 		}
+
+		UART_PRINT("\"Sequence\":\"%d\"}]", seq);
+
+
 
 	}
 
@@ -107,6 +125,9 @@ void SendMessage(void *pvParameters){
 		LOOP_FOREVER();
 	}
 	UART_PRINT("\nSocket closed");
+
+	while(cmd); //wait until the configuration is done
+
 	lRetVal = osi_TaskCreate( restartRX, \
 				                                (const signed char*)"Statistics Collect Task", \
 				                                OSI_STACK_SIZE, NULL, 3, NULL );
@@ -131,3 +152,73 @@ void restartRX(void *pvParameters){
 			LOOP_FOREVER();
 		}
 }
+
+//****************************************************************************
+//
+//! Get Configuration form the user over UART
+//!
+//! \param pcCfgName is a pointer to the array which will contain the Configurations
+//!
+//! This function
+//!    1. gets the Cfg string over uart
+//!
+//! \return iRetVal is the length of the configuration(user input).
+//
+//****************************************************************************
+int GetCfg(char *pcCfgName, unsigned int uiMaxLen){
+  char ucRecvd = 0;
+  int  iRetVal = 0;
+  char acCmdStore[128];
+  do
+  {
+      ucRecvd = 0;
+      cmd = true ;
+
+      //
+      // Get the CFG name to connect over the UART
+      //
+      iRetVal = GetCmd(acCmdStore, sizeof(acCmdStore));
+      if(iRetVal > 0)
+      {
+          // remove start/end spaces if any
+          iRetVal = TrimSpace(acCmdStore);
+
+          //
+          // Parse the CFG name
+          //
+          strncpy(pcCfgName, acCmdStore, iRetVal);
+          if(pcCfgName != NULL)
+          {
+              ucRecvd = 1;
+              pcCfgName[iRetVal] = '\0';
+          }
+      }
+  }while(ucRecvd == 0);
+
+  return(iRetVal);
+}
+
+
+//****************************************************************************
+//
+//! Toggle the cmd flag
+//!
+//! \param none
+//!
+//! This function
+//!    1. toggles the cmd flag
+//!
+//! \return none
+//
+//****************************************************************************
+void ToggleCmd(){
+
+	if (cmd == false)
+	{
+		cmd = true;
+	}else
+	{
+		cmd = false;
+	}
+}
+

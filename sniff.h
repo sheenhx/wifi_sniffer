@@ -3,6 +3,7 @@
  *
  *  Created on: 21-Jan-2016
  *      Author: lakshbhatia
+ *      Author: Sheen Xin HU
  */
 
 #ifndef SNIFF_H_
@@ -14,6 +15,7 @@ void RxStatisticsCollect( void *pvParameters );
 void ChangeChannel(int channel);
 void SendMessage(void *pvParameters);
 void restartRX(void *pvParameters);
-
+int GetCfg(char *pcCfgName, unsigned int uiMaxLen);
+void ToggleCmd();
 
 #endif /* SNIFF_H_ */
