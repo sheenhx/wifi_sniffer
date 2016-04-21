@@ -65,6 +65,7 @@ void RxStatisticsCollect(void *pvParameters)
 		ERR_PRINT(lRetVal);
 		LOOP_FOREVER();
 	}
+
 }
 
 void ChangeChannel(int channel){
@@ -106,10 +107,11 @@ void SendMessage(void *pvParameters){
 
 			}
 
-			seq++;
+
 			UART_PRINT("\",");
 			GPIO_IF_LedToggle(MCU_GREEN_LED_GPIO); // indicating the MCU activities
 		}
+		seq++;
 
 		UART_PRINT("\"Sequence\":\"%d\"}]", seq);
 
@@ -151,6 +153,7 @@ void restartRX(void *pvParameters){
 			ERR_PRINT(lRetVal);
 			LOOP_FOREVER();
 		}
+
 }
 
 //****************************************************************************
@@ -172,7 +175,6 @@ int GetCfg(char *pcCfgName, unsigned int uiMaxLen){
   do
   {
       ucRecvd = 0;
-      cmd = true ;
 
       //
       // Get the CFG name to connect over the UART
@@ -201,24 +203,41 @@ int GetCfg(char *pcCfgName, unsigned int uiMaxLen){
 
 //****************************************************************************
 //
-//! Toggle the cmd flag
+//! Set the cmd flag
 //!
 //! \param none
 //!
 //! This function
-//!    1. toggles the cmd flag
+//!    1. Set the cmd flag
 //!
 //! \return none
 //
 //****************************************************************************
-void ToggleCmd(){
+void SetCmd(){
 
-	if (cmd == false)
-	{
 		cmd = true;
-	}else
-	{
-		cmd = false;
-	}
 }
 
+
+
+//****************************************************************************
+//
+//! Clear the cmd flag
+//!
+//! \param none
+//!
+//! This function
+//!    1. Clear the cmd flag
+//!
+//! \return none
+//
+//****************************************************************************
+void ClearCmd(){
+
+
+		/*if (cmd == true)
+		{
+			DisableInt();
+		}*/
+		cmd = false;
+}

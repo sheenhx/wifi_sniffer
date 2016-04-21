@@ -16,6 +16,7 @@ void ChangeChannel(int channel);
 void SendMessage(void *pvParameters);
 void restartRX(void *pvParameters);
 int GetCfg(char *pcCfgName, unsigned int uiMaxLen);
-void ToggleCmd();
+void SetCmd();
+void ClearCmd();
 
 #endif /* SNIFF_H_ */

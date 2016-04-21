@@ -629,22 +629,26 @@ void Uart0IntHandler(void)
 
     intStatus = MAP_UARTIntStatus(UARTA0_BASE, 1);
     MAP_UARTIntClear(UARTA0_BASE, intStatus);
+	UART_PRINT("Configuration received\n\r");
 
-    if((intStatus & UART_INT_RX) && MAP_UARTCharsAvail(UARTA0_BASE))
+    if((intStatus & UART_INT_RX | UART_INT_RT)&& MAP_UARTCharsAvail(CONSOLE))
     {
-    	UART_PRINT("\n\r");
-    	UART_PRINT("Configuration received\n\r");
+
+
     	GetCfg(pcCfgName,128);
     }
 
-    if (strcmp(pcCfgName,"START") == 0 )
+    if (strcmp(pcCfgName,"RESTART") == 0 )
     {
-    	ToggleCmd();
+    	//ToggleCmd();
+    	ClearCmd();
     }else if (strcmp(pcCfgName,"CFG") == 0 )
     {
     	//enter the conditions for different configurations
-    	UART_PRINT("\n\r");
-    	    	UART_PRINT("Configuration starts!\n\r");
+    	UART_PRINT("Configuration starts!\n\r");
+    	//ToggleCmd();
+    	SetCmd();
+
     }
 
 
@@ -712,7 +716,7 @@ void main()
 
 
     MAP_UARTIntRegister(UARTA0_BASE, Uart0IntHandler);
-    MAP_UARTIntEnable(UARTA0_BASE, UART_INT_RX);
+    MAP_UARTIntEnable(UARTA0_BASE, UART_INT_RX | UART_INT_RT);
 
     //
     // Display Application Banner
