@@ -629,27 +629,50 @@ void Uart0IntHandler(void)
 
     intStatus = MAP_UARTIntStatus(UARTA0_BASE, 1);
     MAP_UARTIntClear(UARTA0_BASE, intStatus);
-	UART_PRINT("Configuration received\n\r");
 
     if((intStatus & UART_INT_RX | UART_INT_RT)&& MAP_UARTCharsAvail(CONSOLE))
     {
 
 
     	GetCfg(pcCfgName,128);
+
     }
+
+   	char *cfgtoken;
+	char *searchp = "=";
+
+
+	// Token will point to the first part.
+	cfgtoken = strtok(pcCfgName, searchp);
 
     if (strcmp(pcCfgName,"RESTART") == 0 )
     {
-    	//ToggleCmd();
+    	UART_PRINT("OK\r\n");
     	ClearCmd();
     }else if (strcmp(pcCfgName,"CFG") == 0 )
     {
     	//enter the conditions for different configurations
-    	UART_PRINT("Configuration starts!\n\r");
-    	//ToggleCmd();
+    	UART_PRINT("OK\r\n");
     	SetCmd();
 
+
     }
+
+    if(strcmp(cfgtoken,"CFG+INTVL") == 0 )
+    {
+    	UART_PRINT("OK\r\n");
+    	int value;
+    	// Token will point to the first part.
+    	cfgtoken = strtok(NULL, searchp);
+
+    	value = atoi(cfgtoken);
+		ChangeIntvl(value);
+		UART_PRINT("Change interval to %d \r\n",value);
+
+
+
+    }
+
 
 
 

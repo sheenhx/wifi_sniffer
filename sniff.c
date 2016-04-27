@@ -14,6 +14,7 @@
 #include <stdint.h>
 #include "rom_map.h"
 #include "uart_if.h"
+#include "osi.h"
 
 
 
@@ -23,6 +24,7 @@ volatile int iChannel = 11;
 char acBuffer[1500];
 int16_t iSoc;
 OsiTaskHandle sendMessageHandle;
+int interval = 0;
 
 //*****************************************************************************
 //
@@ -89,7 +91,7 @@ void SendMessage(void *pvParameters){
 
     while(!cmd)
 	{
-
+    	osi_Sleep(interval);
 		UART_PRINT("\n\r[{\"ID\":\"%02x%02x\",",macAddressVal[4],macAddressVal[5]);
 		UART_PRINT("\"iSOC\":\"%d\",",iSoc);
 		lRetVal = sl_Recv(iSoc,acBuffer,1470,0);
@@ -128,7 +130,10 @@ void SendMessage(void *pvParameters){
 	}
 	UART_PRINT("\nSocket closed");
 
-	while(cmd); //wait until the configuration is done
+	while(cmd)
+	{
+		osi_Sleep(1);
+	}//wait until the configuration is done
 
 	lRetVal = osi_TaskCreate( restartRX, \
 				                                (const signed char*)"Statistics Collect Task", \
@@ -235,9 +240,23 @@ void SetCmd(){
 void ClearCmd(){
 
 
-		/*if (cmd == true)
-		{
-			DisableInt();
-		}*/
 		cmd = false;
+}
+
+//****************************************************************************
+//
+//! Change the sniffer interval
+//!
+//! \param time interval
+//!
+//! This function
+//!    1. Changes the sniffer interval
+//!
+//! \return none
+//
+//****************************************************************************
+void ChangeIntvl(int val){
+
+
+		interval = val;
 }

@@ -13,6 +13,7 @@
 
 void RxStatisticsCollect( void *pvParameters );
 void ChangeChannel(int channel);
+void ChangeIntvl(int val);
 void SendMessage(void *pvParameters);
 void restartRX(void *pvParameters);
 int GetCfg(char *pcCfgName, unsigned int uiMaxLen);
