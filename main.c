@@ -673,6 +673,20 @@ void Uart0IntHandler(void)
 
     }
 
+    if(strcmp(cfgtoken,"CFG+CH") == 0 )
+        {
+        	UART_PRINT("OK\r\n");
+        	int value;
+        	// Token will point to the first part.
+        	cfgtoken = strtok(NULL, searchp);
+
+        	value = atoi(cfgtoken);
+        	ChangeChannel(value);
+    		UART_PRINT("Change channel to %d \r\n",value);
+
+
+
+        }
 
 
 
